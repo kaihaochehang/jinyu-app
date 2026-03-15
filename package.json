@@ -30,7 +30,11 @@
   },
   "engines": {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     "node": "20.x"
+=======
+    "node": "18.x"
+>>>>>>> Stashed changes
 =======
     "node": "18.x"
 >>>>>>> Stashed changes
