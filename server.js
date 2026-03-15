@@ -88,8 +88,9 @@ app.use((err, req, res, next) => {
 // 启动定时任务
 require('./cron/jobs');
 
-// 只在本地环境启动服务器
-if (require.main === module) {
+// 启动服务器（兼容本地和Vercel）
+if (process.env.VERCEL !== '1') {
+  // 本地环境
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`服务器运行在端口 ${PORT}`);
     console.log(`本地访问: http://localhost:${PORT}`);
@@ -97,5 +98,8 @@ if (require.main === module) {
     console.log(`外部访问: http://0.0.0.0:${PORT}`);
   });
 }
+
+// Vercel 需要导出 app
+module.exports = app;
 
 module.exports = app;
