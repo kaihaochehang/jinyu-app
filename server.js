@@ -50,14 +50,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 数据库连接
-const db = require('./models');
-
-// 同步数据库（仅验证连接，不修改表结构）
-db.sequelize.authenticate().then(() => {
-  console.log('数据库连接成功');
-}).catch(err => {
-  console.error('数据库连接失败:', err);
-});
+let db;
+try {
+  db = require('./models');
+  
+  // 同步数据库（仅验证连接，不修改表结构）
+  db.sequelize.authenticate().then(() => {
+    console.log('数据库连接成功');
+  }).catch(err => {
+    console.error('数据库连接失败:', err.message);
+  });
+} catch (err) {
+  console.error('数据库模块加载失败:', err.message);
+}
 
 // 路由
 app.use('/api/auth', require('./routes/auth'));
@@ -83,9 +88,8 @@ app.use((err, req, res, next) => {
 // 启动定时任务
 require('./cron/jobs');
 
-// 启动服务器（兼容本地和Vercel）
-if (process.env.VERCEL !== '1') {
-  // 本地环境
+// 只在本地环境启动服务器
+if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`服务器运行在端口 ${PORT}`);
     console.log(`本地访问: http://localhost:${PORT}`);
@@ -94,5 +98,4 @@ if (process.env.VERCEL !== '1') {
   });
 }
 
-// Vercel 需要默认导出
 module.exports = app;

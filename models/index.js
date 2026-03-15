@@ -3,10 +3,24 @@ const { Sequelize } = require('sequelize');
 // 从环境变量获取数据库配置
 const DB_URL = process.env.DATABASE_URL;
 
+// Vercel Serverless 环境配置
+const isVercel = process.env.VERCEL === '1';
+
 const sequelize = new Sequelize(DB_URL, {
   dialect: 'postgres',
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
-  pool: {
+  dialectOptions: isVercel ? {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  } : {},
+  pool: isVercel ? {
+    max: 1,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  } : {
     max: 10,
     min: 0,
     acquire: 30000,
